@@ -1,0 +1,31 @@
+protocol RegVBNS;
+identifiers
+C,M			: user;
+Na, Pd, P	: number;
+F			: function;
+Kc			: symmetric_key;
+Kp			: public_key;
+
+messages
+1. C -> M : {C,Na,Pd}Kc
+2. M -> C : {Na,Pd, F(Pd)}Kc
+3. C -> M : {Na,F(P,F(Pd))}Kc
+4. M -> C : {C,Kp,Kp'}Kc
+
+knowledge
+C	: C, M, Na, Pd, Kc;
+M	: C, M, Kc;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+session_instances
+[C:client,M:miner, Na:na, Pd:pd, Kc:kc]     % we define only the variables appearing in the knowledge section
+[C:client,M:i, Na:na, Pd:pd, Kc:kc]
+[C:i,M:miner, Na:na, Pd:pd, Kc:kc];
+
+intruder_knowledge
+client,miner;                         % the intruder knows 
+
+goal
+secrecy_of P [C];
+secrecy_of Kp [C,M];
+%secrecy_of Kp' [C,M];
