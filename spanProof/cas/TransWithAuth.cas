@@ -1,0 +1,32 @@
+protocol GetServNotAuth;
+identifiers
+C,W,M			: user;
+Op,T, B, R		: function;
+O, QR, Ncw, Nw		: number;
+Kc,Kw			: symmetric_key;
+Kpc			: public_key;
+
+messages
+1. C -> W : {C,Op(QR,O,Ncw),{Op(QR,O,Ncw)}Kpc}Kc
+2. W -> M : {C,T(C,O,{O}Kpc),Nw}Kw
+3. M -> W : {C, B(T(C,O,{O}Kpc))}Kw
+4. W -> C : {C,R(T(C,O,{O}Kpc)),Ncw}Kc
+
+knowledge
+C	: C, W,QR, Kw, Ncw, O, Op, Kc;  
+W	: C, W, Kc, Kw, T, B, R;
+M	: M, B;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+session_instances
+[C:client,W:wallet, M:miner, QR:qr, Kw:kw, Kc:kc, Ncw:ncw, O:o, Op:op, T:t, B:b, R:r] % we define only the variables appearing in the knowledge section
+[C:client, W:i, M:miner, QR:qr, Kw:kw, Kc:kc, Ncw:ncw, O:o, Op:op, T:t, B:b, R:r]
+[C:i,W:wallet, M:miner, QR:qr, Kw:kw, Kc:kc, Ncw:ncw, O:o, Op:op, T:t, B:b, R:r];
+
+intruder_knowledge
+client,wallet,miner;                         % the intruder knows 
+
+goal
+secrecy_of Op [C,W];
+secrecy_of T [W,M];
+secrecy_of B [W,M];

@@ -1,0 +1,26 @@
+protocol GetServNotAuth;
+identifiers
+C,W			: user;
+N, QR			: number;
+F			: function;
+Kc			: symmetric_key;
+
+messages
+1. C -> W : {C,QR,N}Kc
+2. W -> C : {C,F(QR,N)}Kc
+
+knowledge
+C	: C, W, QR, Kc;
+W	: W, Kc;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+session_instances
+[C:client,W:wallet, QR:qr, Kc:kc]     % we define only the variables appearing in the knowledge section
+[C:client, W:i,  QR:qr, Kc:kc]
+[C:i,W:wallet, QR:qr, Kc:kc];
+
+intruder_knowledge
+client,wallet;                         % the intruder knows 
+
+goal
+secrecy_of N [C,W];

@@ -1,0 +1,31 @@
+protocol AuthVBNS;
+identifiers
+C,M		: user;          
+Na, Nc, X, P,Y	: number;
+H		: function;
+Kc		: symmetric_key;  
+
+messages
+1. C -> M : C,M,{M,Na,Nc,H(Na,C,M,Nc)}Kc
+2. M -> C : {C,H(Nc,X)}Kc
+3. C -> M : {Na,Nc,H(Nc,Y)}Kc
+
+knowledge
+C	: C, M, P, X, Kc;
+M	: C, M, X, Y, Kc;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+session_instances
+[C:client,M:wallet, P:p, X:x, Y:y, Kc:kc]     % we define only the variables appearing in the knowledge section
+[C:i,M:wallet, P:p, X:x, Y:y, Kc:kc]
+[C:client,M:i, P:p, X:x, Y:y, Kc:kc]				     
+;
+
+intruder_knowledge
+client,wallet;                         % the intruder knows 
+
+goal
+C authenticates M on Nc;
+M authenticates C on Na;
+
+

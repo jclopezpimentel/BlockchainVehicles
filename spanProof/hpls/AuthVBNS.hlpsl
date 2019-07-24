@@ -1,0 +1,63 @@
+role role_C(C:agent,M:agent,P:text,X:text,Kc:symmetric_key,SND,RCV:channel(dy))
+played_by C
+def=
+	local
+		State:nat,Na:text,H:hash_func,Nc:text,Y:text
+	init
+		State := 0
+	transition
+		1. State=0 /\ RCV(start) =|> State':=1 /\ Nc':=new() /\ witness(C,M,auth_1,Nc') /\ Na':=new() /\ SND(C.M.{M.Na'.Nc'.H(Na'.C.M.Nc')}_Kc)
+		2. State=1 /\ RCV({C.H(Nc.X)}_Kc) =|> State':=2 /\ Y':=new() /\ SND({Na.Nc.H(Nc.Y')}_Kc)
+end role
+
+role role_M(C:agent,M:agent,X:text,Y:text,Kc:symmetric_key,SND,RCV:channel(dy))
+played_by M
+def=
+	local
+		State:nat,Na:text,H:hash_func,Nc:text
+	init
+		State := 0
+	transition
+		1. State=0 /\ RCV(C.M.{M.Na'.Nc'.H(Na'.C.M.Nc')}_Kc) =|> State':=1 /\ request(M,C,auth_1,Nc') /\ witness(M,C,auth_2,Na') /\ SND({C.H(Nc'.X)}_Kc)
+		3. State=1 /\ RCV({Na.Nc.H(Nc.Y)}_Kc) =|> State':=2
+end role
+
+role session1(P:text,C:agent,M:agent,X:text,Y:text,Kc:symmetric_key)
+def=
+	local
+		SND2,RCV2,SND1,RCV1:channel(dy)
+	composition
+		role_M(C,M,X,Y,Kc,SND2,RCV2) /\ role_C(C,M,P,X,Kc,SND1,RCV1)
+end role
+
+role session2(P:text,C:agent,M:agent,X:text,Y:text,Kc:symmetric_key)
+def=
+	local
+		SND2,RCV2,SND1,RCV1:channel(dy)
+	composition
+		role_M(C,M,X,Y,Kc,SND2,RCV2) /\ role_C(C,M,P,X,Kc,SND1,RCV1)
+end role
+
+role session3(P:text,C:agent,M:agent,X:text,Y:text,Kc:symmetric_key)
+def=
+	local
+		SND2,RCV2,SND1,RCV1:channel(dy)
+	composition
+		role_M(C,M,X,Y,Kc,SND2,RCV2) /\ role_C(C,M,P,X,Kc,SND1,RCV1)
+end role
+
+role environment()
+def=
+	const
+		y:text,client:agent,hash_0:hash_func,miner:agent,p:text,x:text,kc:symmetric_key,auth_1:protocol_id,auth_2:protocol_id
+	intruder_knowledge = {client,miner}
+	composition
+		session3(p,client,i,x,y,kc) /\ session2(p,i,miner,x,y,kc) /\ session1(p,client,miner,x,y,kc)
+end role
+
+goal
+	authentication_on auth_1
+	authentication_on auth_2
+end goal
+
+environment()
